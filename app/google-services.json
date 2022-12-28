@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1069584731954",
+    "firebase_url": "https://paging3firebase-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "paging3firebase",
+    "storage_bucket": "paging3firebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1069584731954:android:2313f55102a6e5ffa7d12b",
+        "android_client_info": {
+          "package_name": "com.example.paging3firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1069584731954-aa3a4n9hsvd97i8a86776ltm96m4kb68.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHCAd7VGluHktkCDDZTyVobVfYmOXNb4g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1069584731954-aa3a4n9hsvd97i8a86776ltm96m4kb68.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
