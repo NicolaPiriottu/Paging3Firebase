@@ -42,6 +42,10 @@ class HomeFragment : Fragment(), PostAdapter.Listener {
         viewModel.getItems()
 
         binding.recyclerview.adapter = adapter
+
+        binding.load.setOnClickListener {
+           // viewModel.load()
+        }
         setupObservers()
         return root
     }

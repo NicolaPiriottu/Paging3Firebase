@@ -25,20 +25,25 @@ class HomeViewModel @Inject constructor(private val repository: FirebaseDataSour
     //region LiveData
     val useCaseLiveData = MutableLiveData<Event<UseCaseLiveData>>()
 
-    fun getItems() {
+    val items: MutableList<PostModel> = mutableListOf()
 
-        val response = repository.getPosts()
+    fun getItems(key:String="") {
 
+        val response = repository.getPosts().limitToFirst(10).orderByKey().startAfter(key)
+
+        val itemsNew: MutableList<PostModel> = mutableListOf()
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val items: MutableList<PostModel> = mutableListOf()
+
+                Log.w(ContentValues.TAG, "Niko loadPost:onDataChange dataSnapshot: $dataSnapshot")
                 // Get Post object and use the values to update the UI
                 for (objSnapshot in dataSnapshot.children) {
                     Log.w(ContentValues.TAG, "Niko loadPost:onDataChange post: $objSnapshot")
                     val myClass = objSnapshot.getValue(PostModel::class.java)
                     myClass?.let { items.add(it) }
-                    useCaseLiveData.postValue(Event(UseCaseLiveData.ShowItems(items)))
                 }
+                itemsNew.addAll(items)
+                useCaseLiveData.postValue(Event(UseCaseLiveData.ShowItems(itemsNew)))
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -57,5 +62,9 @@ class HomeViewModel @Inject constructor(private val repository: FirebaseDataSour
                 message = post.message,
                 likeCount = post.likeCount + 1)
         )
+    }
+
+    fun load() {
+       getItems("-NKOA-f8A1GqpXvt8enI")
     }
 }
