@@ -46,7 +46,7 @@ class HomeFragment : Fragment(), PostAdapter.Listener {
         viewModel.getItems()
 
         binding.load.setOnClickListener {
-           // viewModel.load()
+            viewModel.load()
         }
         setupObservers()
         return root
@@ -68,9 +68,6 @@ class HomeFragment : Fragment(), PostAdapter.Listener {
                         }
                         is HomeViewModel.UseCaseLiveData.ShowTitle -> {
                             binding.load.text= useCase.title
-                        }
-                        is HomeViewModel.UseCaseLiveData.ShowTitle2 -> {
-                            binding.load2.text= useCase.title
                         }
                     }
                 }

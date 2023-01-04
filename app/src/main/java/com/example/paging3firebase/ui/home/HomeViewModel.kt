@@ -20,21 +20,23 @@ class HomeViewModel @Inject constructor(private val repository: FirebaseDataSour
     //region UseCase
     sealed class UseCaseLiveData {
         data class ShowItems(val items: MutableList<PostModel>) : UseCaseLiveData()
-        data class ShowTitle(val title:String): UseCaseLiveData()
-        data class ShowTitle2(val title:String): UseCaseLiveData()
+        data class ShowTitle(val title: String) : UseCaseLiveData()
     }
     //endregion UseCase
 
-    //region LiveData
+    //https://developer.android.com/kotlin/flow/stateflow-and-sharedflow
     val useCaseLiveData = MutableStateFlow<Event<UseCaseLiveData>>((Event(UseCaseLiveData.ShowItems(
         mutableListOf()))))
-
     val uiState: StateFlow<Event<UseCaseLiveData>> = useCaseLiveData
 
-    fun getItems(key: String = "") {
+    init {
+        useCaseLiveData.value = ((Event(UseCaseLiveData.ShowTitle("TITOLO"))))
+    }
 
-        val response = repository.getPosts().limitToFirst(10).orderByKey().startAfter(key)
+    private var nextPage = 10
+    fun getItems() {
 
+        val response = repository.getPosts().limitToFirst(nextPage).orderByKey()
 
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -46,9 +48,8 @@ class HomeViewModel @Inject constructor(private val repository: FirebaseDataSour
                     val myClass = objSnapshot.getValue(PostModel::class.java)
                     myClass?.let { itemsNew.add(it) }
                 }
+
                 useCaseLiveData.value = ((Event(UseCaseLiveData.ShowItems(itemsNew))))
-                useCaseLiveData.value = ((Event(UseCaseLiveData.ShowTitle("TITOLO"))))
-                useCaseLiveData.value = ((Event(UseCaseLiveData.ShowTitle2("SOTTOTITOLO"))))
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -70,6 +71,7 @@ class HomeViewModel @Inject constructor(private val repository: FirebaseDataSour
     }
 
     fun load() {
-        getItems("-NKOA-f8A1GqpXvt8enI")
+        nextPage += 10
+        getItems()
     }
 }
