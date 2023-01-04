@@ -10,6 +10,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,31 +20,35 @@ class HomeViewModel @Inject constructor(private val repository: FirebaseDataSour
     //region UseCase
     sealed class UseCaseLiveData {
         data class ShowItems(val items: MutableList<PostModel>) : UseCaseLiveData()
+        data class ShowTitle(val title:String): UseCaseLiveData()
+        data class ShowTitle2(val title:String): UseCaseLiveData()
     }
     //endregion UseCase
 
     //region LiveData
-    val useCaseLiveData = MutableLiveData<Event<UseCaseLiveData>>()
+    val useCaseLiveData = MutableStateFlow<Event<UseCaseLiveData>>((Event(UseCaseLiveData.ShowItems(
+        mutableListOf()))))
 
-    val items: MutableList<PostModel> = mutableListOf()
+    val uiState: StateFlow<Event<UseCaseLiveData>> = useCaseLiveData
 
-    fun getItems(key:String="") {
+    fun getItems(key: String = "") {
 
         val response = repository.getPosts().limitToFirst(10).orderByKey().startAfter(key)
 
-        val itemsNew: MutableList<PostModel> = mutableListOf()
+
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-
+                val itemsNew: MutableList<PostModel> = mutableListOf()
                 Log.w(ContentValues.TAG, "Niko loadPost:onDataChange dataSnapshot: $dataSnapshot")
                 // Get Post object and use the values to update the UI
                 for (objSnapshot in dataSnapshot.children) {
                     Log.w(ContentValues.TAG, "Niko loadPost:onDataChange post: $objSnapshot")
                     val myClass = objSnapshot.getValue(PostModel::class.java)
-                    myClass?.let { items.add(it) }
+                    myClass?.let { itemsNew.add(it) }
                 }
-                itemsNew.addAll(items)
-                useCaseLiveData.postValue(Event(UseCaseLiveData.ShowItems(itemsNew)))
+                useCaseLiveData.value = ((Event(UseCaseLiveData.ShowItems(itemsNew))))
+                useCaseLiveData.value = ((Event(UseCaseLiveData.ShowTitle("TITOLO"))))
+                useCaseLiveData.value = ((Event(UseCaseLiveData.ShowTitle2("SOTTOTITOLO"))))
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -65,6 +70,6 @@ class HomeViewModel @Inject constructor(private val repository: FirebaseDataSour
     }
 
     fun load() {
-       getItems("-NKOA-f8A1GqpXvt8enI")
+        getItems("-NKOA-f8A1GqpXvt8enI")
     }
 }

@@ -6,8 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.paging3firebase.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment(), PostAdapter.Listener {
@@ -39,9 +41,9 @@ class HomeFragment : Fragment(), PostAdapter.Listener {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        viewModel.getItems()
-
         binding.recyclerview.adapter = adapter
+
+        viewModel.getItems()
 
         binding.load.setOnClickListener {
            // viewModel.load()
@@ -57,11 +59,19 @@ class HomeFragment : Fragment(), PostAdapter.Listener {
 
     private fun setupObservers() {
         // Use Case
-        viewModel.useCaseLiveData.observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let { useCase ->
-                when (useCase) {
-                    is HomeViewModel.UseCaseLiveData.ShowItems -> {
-                        adapter.submitList(useCase.items)
+        lifecycleScope.launch {
+            viewModel.uiState.collect {
+                it.getContentIfNotHandled()?.let { useCase ->
+                    when (useCase) {
+                        is HomeViewModel.UseCaseLiveData.ShowItems -> {
+                            adapter.submitList(useCase.items)
+                        }
+                        is HomeViewModel.UseCaseLiveData.ShowTitle -> {
+                            binding.load.text= useCase.title
+                        }
+                        is HomeViewModel.UseCaseLiveData.ShowTitle2 -> {
+                            binding.load2.text= useCase.title
+                        }
                     }
                 }
             }
