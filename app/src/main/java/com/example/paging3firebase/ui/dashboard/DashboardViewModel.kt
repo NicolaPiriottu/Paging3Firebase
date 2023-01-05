@@ -17,26 +17,48 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class DashboardViewModel @Inject constructor(private val repository: FirestoreDataImpl) : ViewModel() {
+class DashboardViewModel @Inject constructor(private val repository: FirestoreDataImpl) :
+    ViewModel() {
 
-     //region UseCase
-   sealed class UseCaseLiveData {
-       data class ShowItems(val items: MutableList<PostModel>) : UseCaseLiveData()
-       data class ShowTitle(val title: String) : UseCaseLiveData()
-   }
-   //endregion UseCase
+    //region UseCase
+    sealed class UseCaseLiveData {
+        data class ShowItems(val items: MutableList<PostModel>) : UseCaseLiveData()
+        data class ShowTitle(val title: String) : UseCaseLiveData()
 
-   //https://developer.android.com/kotlin/flow/stateflow-and-sharedflow
-   private val useCaseLiveData = MutableStateFlow<Event<UseCaseLiveData>>((Event(UseCaseLiveData.ShowItems(
-       mutableListOf()))))
-   val uiState: StateFlow<Event<UseCaseLiveData>> = useCaseLiveData
+    }
+    //endregion UseCase
 
-    fun addItems(){
+    //https://developer.android.com/kotlin/flow/stateflow-and-sharedflow
+    /*private val useCaseLiveData =
+        MutableStateFlow<Event<UseCaseLiveData>>((Event(UseCaseLiveData.ShowItems(
+            mutableListOf()))))
+    val uiState: StateFlow<Event<UseCaseLiveData>> = useCaseLiveData*/
+
+     val useCaseLiveData = MutableLiveData<Event<UseCaseLiveData>>()
+    private val items: MutableList<PostModel> = mutableListOf()
+    private var entrato = 0
+
+    init {
+        getPosts()
+    }
+
+    fun addItems() {
         repository.addPosts()
     }
 
-    fun getPosts(){
-        val response = repository.getPosts().orderBy("id",Query.Direction.ASCENDING)
+    fun showFragment() {
+        entrato = entrato.sumPage()
+        useCaseLiveData.postValue(((Event(UseCaseLiveData.ShowTitle(entrato.toString())))))
+
+    }
+
+    fun test(){
+        useCaseLiveData.postValue(((Event(UseCaseLiveData.ShowItems(items)))))
+    }
+
+    private fun getPosts() {
+
+        val response = repository.getPosts().orderBy("id", Query.Direction.ASCENDING)
         val itemsNew: MutableList<PostModel> = mutableListOf()
         response.get()
             .addOnSuccessListener { result ->
@@ -45,6 +67,7 @@ class DashboardViewModel @Inject constructor(private val repository: FirestoreDa
                     val myClass = document.toObject(PostModel::class.java)
                     itemsNew.add(myClass)
                 }
+                items.addAll(itemsNew)
                 useCaseLiveData.value = ((Event(UseCaseLiveData.ShowItems(itemsNew))))
             }
             .addOnFailureListener { exception ->
@@ -52,7 +75,11 @@ class DashboardViewModel @Inject constructor(private val repository: FirestoreDa
             }
     }
 
-    fun updatePost(postModel: PostModel){
+    fun updatePost(postModel: PostModel) {
         repository.updatePost(postModel)
+    }
+
+    private fun Int.sumPage():Int{
+        return this+1
     }
 }

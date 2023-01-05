@@ -39,7 +39,7 @@ class DashboardFragment : Fragment(), PostAdapter.Listener {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
 
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
@@ -47,7 +47,7 @@ class DashboardFragment : Fragment(), PostAdapter.Listener {
 
         binding.recyclerview.adapter = adapter
 
-        viewModel.getPosts()
+        viewModel.showFragment()
         setupObservers()
         return root
     }
@@ -59,7 +59,7 @@ class DashboardFragment : Fragment(), PostAdapter.Listener {
 
     private fun setupObservers() {
         // Use Case
-        lifecycleScope.launch {
+        /*lifecycleScope.launch {
             viewModel.uiState.collect {
                 it.getContentIfNotHandled()?.let { useCase ->
                     when (useCase) {
@@ -67,8 +67,23 @@ class DashboardFragment : Fragment(), PostAdapter.Listener {
                             adapter.submitList(useCase.items)
                         }
                         is DashboardViewModel.UseCaseLiveData.ShowTitle -> {
-
+                            binding.title.text = useCase.title
                         }
+                    }
+                }
+            }
+        }*/
+
+
+        viewModel.useCaseLiveData.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { useCase ->
+                when (useCase) {
+                    is DashboardViewModel.UseCaseLiveData.ShowItems -> {
+                        adapter.submitList(useCase.items)
+                    }
+                    is DashboardViewModel.UseCaseLiveData.ShowTitle -> {
+                        binding.title.text = useCase.title
+                        viewModel.test()
                     }
                 }
             }

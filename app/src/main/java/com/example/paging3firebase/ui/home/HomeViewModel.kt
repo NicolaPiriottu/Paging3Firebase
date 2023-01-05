@@ -30,7 +30,7 @@ class HomeViewModel @Inject constructor(private val repository: FirebaseDataSour
     val uiState: StateFlow<Event<UseCaseLiveData>> = useCaseLiveData
 
     init {
-        useCaseLiveData.value = ((Event(UseCaseLiveData.ShowTitle("TITOLO"))))
+        useCaseLiveData.value = ((Event(UseCaseLiveData.ShowTitle("INIT"))))
     }
 
     private var nextPage = 10
@@ -71,7 +71,11 @@ class HomeViewModel @Inject constructor(private val repository: FirebaseDataSour
     }
 
     fun load() {
-        nextPage += 10
+        nextPage = nextPage.sumPage()
         getItems()
     }
+
+   private fun Int.sumPage():Int{
+       return this+10
+   }
 }
