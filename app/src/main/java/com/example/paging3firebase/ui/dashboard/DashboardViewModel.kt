@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.paging3firebase.api.FirebaseDataSourceImp
 import com.example.paging3firebase.api.FirestoreDataImpl
 import com.example.paging3firebase.ui.home.HomeViewModel
@@ -12,8 +13,10 @@ import com.example.paging3firebase.utils.Event
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.toObject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,13 +51,16 @@ class DashboardViewModel @Inject constructor(private val repository: FirestoreDa
 
     fun showFragment() {
         entrato = entrato.sumPage()
-        useCaseLiveData.postValue(((Event(UseCaseLiveData.ShowTitle(entrato.toString())))))
+        viewModelScope.launch(Dispatchers.IO) {
+            useCaseLiveData.postValue(((Event(UseCaseLiveData.ShowTitle(entrato.toString())))))
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            useCaseLiveData.postValue(((Event(UseCaseLiveData.ShowItems(items)))))
+        }
 
     }
 
-    fun test(){
-        useCaseLiveData.postValue(((Event(UseCaseLiveData.ShowItems(items)))))
-    }
 
     private fun getPosts() {
 
@@ -81,5 +87,9 @@ class DashboardViewModel @Inject constructor(private val repository: FirestoreDa
 
     private fun Int.sumPage():Int{
         return this+1
+    }
+
+    private fun PostModel.map(){
+        this.id
     }
 }

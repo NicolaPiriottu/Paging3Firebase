@@ -24,6 +24,7 @@ class DashboardFragment : Fragment(), PostAdapter.Listener {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private var testo:String?=null
     /**
      * ViewModel
      * */
@@ -49,6 +50,16 @@ class DashboardFragment : Fragment(), PostAdapter.Listener {
 
         viewModel.showFragment()
         setupObservers()
+
+       /* with(testo) {
+
+            binding.title.text = this +"ciao with"
+        }*/
+
+        testo.apply {
+
+            binding.title.text =  this + "ciao apply"
+        }
         return root
     }
 
@@ -82,8 +93,8 @@ class DashboardFragment : Fragment(), PostAdapter.Listener {
                         adapter.submitList(useCase.items)
                     }
                     is DashboardViewModel.UseCaseLiveData.ShowTitle -> {
-                        binding.title.text = useCase.title
-                        viewModel.test()
+                      //  binding.title.text = useCase.title
+
                     }
                 }
             }
